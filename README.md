@@ -16,5 +16,5 @@ For help getting started with Flutter, view our
 samples, guidance on mobile development, and a full API reference.
 
 >This project is created during learning this flutter framework.
->It have two tabs i.e months and History.
+>It have three tabs i.e months,History and Bills.
 >and Generate bill at the end of the month or you can generate bill at any time.
