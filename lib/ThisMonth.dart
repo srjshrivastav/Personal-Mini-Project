@@ -179,21 +179,28 @@ class state_ThisMonth extends State<ThisMonth> {
     dbFuture.then((database){
       Future<List<Days>> daysList=databaseHelper.getDays("ThisMonth");
       daysList.then((daylist) async {
-        if(daylist.length<=29){
-
-          setState(() {
-            this.day=daylist;
-            this.count=daylist.length;
-          });
+        if(daylist.length<=4){
+          if(!mounted)
+            updateListView();
+          else {
+            setState(() {
+              this.day = daylist;
+              this.count = daylist.length;
+            });
+          }
         }
         else{
-          _AskForBill(context);
-          await new Future.delayed(const Duration(milliseconds: 1500), () {
+          databaseHelper.insert(dayc,'Bills');
+          await new Future.delayed(const Duration(milliseconds:1200 ), () {
             databaseHelper.delete();
           });
+          if(!mounted)
+            updateListView();
+          else {
             setState(() {
               this.count = 0;
             });
+          }
 
         }
 
@@ -205,22 +212,6 @@ class state_ThisMonth extends State<ThisMonth> {
   void _insert(Days day) async {
     int a=await databaseHelper.insert(day);
 
-  }
-
-  void _AskForBill(BuildContext context) {
-    showDialog(context: context,
-    builder: (BuildContext context){
-      return AlertDialog(
-       content: Text("Month Complete Generate Bill?"),
-       actions: <Widget>[
-         FlatButton(onPressed: () {
-           Navigator.pop(context);
-           generateBill(context);
-
-         }, child: Text('OK'))
-       ],
-      );
-    });
   }
 
 

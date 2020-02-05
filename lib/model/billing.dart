@@ -4,7 +4,6 @@ class Days{
   String _ways;
   int _price;
   var _total;
-  double _encodeway;
 
   Days(this._date,this._ways,this._total);
   Days.perDay(this._price);
@@ -37,6 +36,10 @@ class Days{
     map['Fare']=_total;
 
     return map;
+  }
+  Days.bills(Map<String,dynamic> map){
+    this._date=map['Date'];
+    this._total=map['Amount'];
   }
   Days.fromMapObject(Map<String,dynamic> map){
     this._id=map['id'];

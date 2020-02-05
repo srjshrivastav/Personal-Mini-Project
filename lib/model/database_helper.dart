@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:personal/main.dart';
 import 'package:sqflite/sqflite.dart';
 import 'dart:io';
@@ -42,6 +43,7 @@ class DatabaseHelper{
     await db.execute('CREATE TABLE $tableName2($colId INTEGER PRIMARY KEY AUTOINCREMENT,$colDates TEXT NOT NULL,$colWays TEXT,$colTotal INTEGER)');
     await db.execute('CREATE TABLE PERDAY(price INTEGER DEFAULT 20)');
     await db.execute('CREATE TABLE SETS(a INTERGER,b INTEGER)');
+    await db.execute('CREATE TABLE Bills(Date Text,Amount INTEGER)');
     await db.rawQuery("INSERT INTO SETS VALUES(1,30)");
     await db.rawQuery("INSERT INTO PERDAY VALUES(20)");
 
@@ -55,20 +57,35 @@ class DatabaseHelper{
     return result;
 }
 
-Future<int> insert(Days day) async{
+Future<int> insert(Days day,[String tname=""]) async{
     Database db = await this.database;
-    db.insert(tableName1, day.toMap());
-    db.insert(tableName2, day.toMap());
+    if(tname.isNotEmpty){
+      var amount= await billGenerate();
+      Map data=new Map<String,dynamic>();
+      data['Date']=DateFormat.MMMEd().format(DateTime.now());
+      data['Amount']=amount[0];
+      db.insert(tname, data );
+    }
+    else{
+      db.insert(tableName1, day.toMap());
+      db.insert(tableName2, day.toMap());
+    }
 }
 
 Future<List<Days>> getDays(String tname) async{
      var data=await fetchData(tname);
      int count=data.length;
      List<Days> days= List<Days>();
-     for (int i=0;i<count;i++){
-       days.add(Days.fromMapObject(data[i]));
+     if(tname=='Bills'){
+       for (int i=0;i<count;i++){
+         days.add(Days.bills(data[i]));
+       }
      }
-
+     else {
+       for (int i = 0; i < count; i++) {
+         days.add(Days.fromMapObject(data[i]));
+       }
+     }
      return days;
 
 }
@@ -93,8 +110,13 @@ updatePrice(Days setPrice) async{
       var result = await db.query('PERDAY');
       return result;
 }
+  Future<List<Map<String,dynamic>>> getBills() async{
+    Database db= await this.database;
+    var result = await db.query('Bills');
+    return result;
+  }
 
-Future<List> Billgenerate() async{
+Future<List> billGenerate() async{
     Database db =await this.database;
     var total= await db.rawQuery("SELECT SUM(Fare) AS Total FROM ThisMonth ");
     var oneWay=await db.rawQuery("SELECT COUNT(Ways) AS One_way FROM ThisMonth where Ways='One Way'");

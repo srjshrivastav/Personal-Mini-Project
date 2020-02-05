@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import './ThisMonth.dart';
 import './History.dart';
 import './model/billing.dart';
+import './Bills.dart';
 void main() => runApp(MyApp());
 enum choice {generateBill,perDay}
 
@@ -43,7 +44,7 @@ class MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateMi
  @override
  void initState() {
     super.initState();
-    controller = TabController(length: 2, vsync: this,initialIndex: 0);
+    controller = TabController(length: 3, vsync: this,initialIndex: 0);
   }
   @override
   void dispose() {
@@ -97,6 +98,12 @@ class MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateMi
                   style:  new TextStyle(
                       fontSize: 17
                   ),),
+            ),
+            new Tab(
+              child: new Text("Bills",
+                style:  new TextStyle(
+                    fontSize: 17
+                ),),
             )
           ],
         ),
@@ -105,7 +112,8 @@ class MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateMi
         controller:controller,
         children: <Widget>[
           ThisMonth(),
-          History()
+          History(),
+          Bills()
         ],
       ),
 
@@ -243,8 +251,8 @@ void ShowBill(BuildContext context,snapshot) {
 }
 
 Future<List> getbill()  async {
-  await new Future.delayed(const Duration(milliseconds: 500), () {
-  });
-  return  await databaseHelper.Billgenerate();
+
+    await new Future.delayed(const Duration(milliseconds: 500), () {});
+    return await databaseHelper.billGenerate();
 }
 
